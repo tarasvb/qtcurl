@@ -23,7 +23,7 @@ public:
     void abort();
     bool isRunning() { return isRunning_; }
 
-    // For list of available set options and valid parameter types consult curl_easy_setinfo manual
+    // For list of available set options and valid parameter types consult curl_easy_setopt manual
     template<typename T> bool set(CURLoption option, T parameter) { return curl_easy_setopt(handle_, option, parameter) == CURLE_OK; }
     bool set(CURLoption option, const QString &parameter); // Convenience override for const char* parameters
     bool set(CURLoption option, const QUrl &parameter); // Convenience override for const char* parameters
