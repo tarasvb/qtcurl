@@ -1,9 +1,8 @@
 #include "CurlEasy.h"
 #include "CurlMulti.h"
 
-CurlEasy::CurlEasy(CurlMulti *preferredMultiInterface, QObject *parent)
+CurlEasy::CurlEasy(QObject *parent)
     : QObject(parent)
-    , preferredMulti_(preferredMultiInterface)
 {
     handle_ = curl_easy_init();
     Q_ASSERT(handle_ != nullptr);

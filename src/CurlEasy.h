@@ -16,7 +16,7 @@ public:
     using DataFunction = std::function<size_t(char *buffer, size_t size)>;
     using SeekFunction = std::function<int(qint64 offset, int origin)>;
 
-    explicit CurlEasy(CurlMulti *preferredMultiInterface = nullptr, QObject *parent = nullptr);
+    explicit CurlEasy(QObject *parent = nullptr);
     virtual ~CurlEasy();
 
     void perform();
@@ -46,6 +46,7 @@ public:
     void setHttpHeaderRaw(const QString &header, const QByteArray &encodedValue);
 
     CURL* handle() { return handle_; }
+    void setPreferredMulti(CurlMulti *multi) { preferredMulti_ = multi; }
 
 signals:
     void aborted();
