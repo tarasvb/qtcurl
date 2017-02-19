@@ -1,5 +1,5 @@
-#ifndef CURLMULTIINTERFACE_H
-#define CURLMULTIINTERFACE_H
+#ifndef CURLMULTI_H
+#define CURLMULTI_H
 
 #include <curl/curl.h>
 #include <QObject>
@@ -20,7 +20,6 @@ public:
 
     void addTransfer(CurlEasy *transfer);
     void removeTransfer(CurlEasy *transfer);
-    void abortTransfer(CurlEasy *transfer);
 
 protected slots:
     void curlMultiTimeout();

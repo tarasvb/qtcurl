@@ -1,5 +1,5 @@
-#ifndef CURLTRANSFER_H
-#define CURLTRANSFER_H
+#ifndef CURLEASY_H
+#define CURLEASY_H
 
 #include <functional>
 #include <curl/curl.h>

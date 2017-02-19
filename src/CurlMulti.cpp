@@ -46,11 +46,11 @@ CurlMulti::~CurlMulti()
 
 CurlMulti *CurlMulti::threadInstance()
 {
-    static QThreadStorage<std::shared_ptr<CurlMulti>> multiInterfaces;
-    if (!multiInterfaces.hasLocalData()) {
-        multiInterfaces.setLocalData(std::make_shared<CurlMulti>());
+    static QThreadStorage<std::shared_ptr<CurlMulti>> instances;
+    if (!instances.hasLocalData()) {
+        instances.setLocalData(std::make_shared<CurlMulti>());
     }
-    return multiInterfaces.localData().get();
+    return instances.localData().get();
 }
 
 void CurlMulti::addTransfer(CurlEasy *transfer)
