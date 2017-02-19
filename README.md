@@ -1,10 +1,9 @@
 # qtcurl
-Run **curl_easy** transfers asynchronously just inside your **Qt** main thread.
+Run **curl_easy** transfers asynchronously just inside your Qt main thread. 
 
-Not very much of code needed for that actually. But if you too lazy to deal with **curl_multi** in event-based systems on your own, you'll probably be happy with these sources. 
+Behind the scenes there is **curl_multi** legally hooked on Qt socket & timer events. Not very much of code needed for that actually. But if you're too lazy to deal with **curl_multi** in event-based system on your own, you'll probably be happy with these sources. 
 
-Now here's just a pretty straightforward wrapper around **curl_easy** functions with some C++/Qt sugar for HTTP headers and common callbacks. More things may be added later.
-
+Except the **curl_multi** thing now there's just only straightforward wraparound for **curl_easy** functions with a tiny bit of C++/Qt sugar. More things may be added later.
 
 
 ##Usage:
@@ -15,7 +14,7 @@ Be strong and do it yourself. There should be plenty of docs for this.
 include (qtcurl/qtcurl.pri)
 ```
 ###3. Write your code
-Include the header, please:
+Get started with including the header:
 ```c++
 #include "CurlEasy.h"
 ```
@@ -63,10 +62,13 @@ curl->perform();
 // Do your Qt stuff while the request is processing.
 ```
 
-Take these notes into account:
+Take these usage notes into account:
+- **done()** signal will NOT be emitted when the transfer is aborted by **abort()** method. **aborted()** will be emitted instead. This is a mostly convenience thing. In the most cases you don't want to do anything in **done()** when you've aborted the transfer externally.
+- By default **CurlEasy** will run on the event loop of the thread from which **perform()** was called.
+- Just as almost any **QObject** stuff, **CurlEasy** is not generally thread-safe. But just like other **QObject**s you can spawn it on any thread and safely use there. Even **moveToThread** is allowed for **CurlEasy** while the transfer is not running. 
 - All **curl_multi**-related stuff will be created and set up on the first **CurlEasy::perform()** call in the current thread.
-- If you want it to be created earlier, just call **CurlMulti::threadInstance()** to kick that lazy initialization manually.
-- All **curl_multi**-related stuff will be destroyed on thread exit (or **QApplication** exit, see Qt manual for **QThreadStorage**).
+- If you want it to be initialized earlier, just call **CurlMulti::threadInstance()** to kick that lazy thing.
+- All **curl_multi**-related stuff will be destroyed on thread exit (or **QApplication** exit, see Qt manual for **QThreadStorage**). If any related **CurlEasy** transfer has been running at this moment, it will receive **aborted()** signal.
 - (Some further notes)
 
 That's all for now. Dig into the sources for details =)
