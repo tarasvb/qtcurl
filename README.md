@@ -1,9 +1,9 @@
 # qtcurl
-Run `curl_easy_*` transfers asynchronously just inside your **Qt** main thread.
+Run **curl_easy** transfers asynchronously just inside your **Qt** main thread.
 
-Not very much of code needed for that actually. But if you too lazy to learn how to deal with *curl_multi* in event-based systems, you'll probably be happy with these sources. 
+Not very much of code needed for that actually. But if you too lazy to deal with **curl_multi** in event-based systems on your own, you'll probably be happy with these sources. 
 
-Now there's just a pretty straight wrapper around *curl_easy* functions with some C++/Qt sugar for HTTP headers and common callbacks. More things may be added later.
+Now here's just a pretty straightforward wrapper around **curl_easy** functions with some C++/Qt sugar for HTTP headers and common callbacks. More things may be added later.
 
 
 
@@ -64,8 +64,9 @@ curl->perform();
 ```
 
 Take these notes into account:
-- All *curl_multi*-related stuff will be created and set up on the first *CurlEasy::perform()* call in the current thread.
-- All *curl_multi*-related stuff will be destroyed on thread exit (or *QApplication* exit, see Qt manual for *QThreadStorage*).
-- (Some further notes here)
+- All **curl_multi**-related stuff will be created and set up on the first **CurlEasy::perform()** call in the current thread.
+- If you want it to be created earlier, just call **CurlMulti::threadInstance()** to kick that lazy initialization manually.
+- All **curl_multi**-related stuff will be destroyed on thread exit (or **QApplication** exit, see Qt manual for **QThreadStorage**).
+- (Some further notes)
 
-That's it. Dig into the sources for details =)
+That's all for now. Dig into the sources for details =)
