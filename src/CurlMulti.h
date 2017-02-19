@@ -30,7 +30,7 @@ protected slots:
 protected:
     void curlSocketAction(curl_socket_t socketDescriptor, int eventsBitmask);
     int curlTimerFunction(int timeoutMsec);
-    int curlSocketFunction(CURL *easyHandle, curl_socket_t socketDescriptor, int what, CurlMultiSocket *socket);
+    int curlSocketFunction(CURL *easyHandle, curl_socket_t socketDescriptor, int action, CurlMultiSocket *socket);
     static int staticCurlTimerFunction(CURLM *multiHandle, long timeoutMs, void *userp);
     static int staticCurlSocketFunction(CURL *easyHandle, curl_socket_t socketDescriptor, int what, void *userp, void *sockp);
 

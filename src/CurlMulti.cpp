@@ -67,11 +67,11 @@ void CurlMulti::removeTransfer(CurlEasy *transfer)
     }
 }
 
-int CurlMulti::curlSocketFunction(CURL *easyHandle, curl_socket_t socketDescriptor, int what, CurlMultiSocket *socket)
+int CurlMulti::curlSocketFunction(CURL *easyHandle, curl_socket_t socketDescriptor, int action, CurlMultiSocket *socket)
 {
     Q_UNUSED(easyHandle);
     if (!socket) {
-        if (what == CURL_POLL_REMOVE || what == CURL_POLL_NONE)
+        if (action == CURL_POLL_REMOVE || action == CURL_POLL_NONE)
             return 0;
 
         socket = new CurlMultiSocket;
@@ -79,7 +79,7 @@ int CurlMulti::curlSocketFunction(CURL *easyHandle, curl_socket_t socketDescript
         curl_multi_assign(handle_, socketDescriptor, socket);
     }
 
-    if (what == CURL_POLL_REMOVE) {
+    if (action == CURL_POLL_REMOVE) {
         curl_multi_assign(handle_, socketDescriptor, nullptr);
 
         // Note: deleteLater will NOT work here since there are
@@ -93,29 +93,26 @@ int CurlMulti::curlSocketFunction(CURL *easyHandle, curl_socket_t socketDescript
         return 0;
     }
 
-    if (what == CURL_POLL_IN || what == CURL_POLL_INOUT) {
+    if (action == CURL_POLL_IN || action == CURL_POLL_INOUT) {
         if (!socket->readNotifier) {
             socket->readNotifier = new QSocketNotifier(socket->socketDescriptor, QSocketNotifier::Read);
             connect(socket->readNotifier, &QSocketNotifier::activated, this, &CurlMulti::socketReadyRead);
         }
         socket->readNotifier->setEnabled(true);
+    } else {
+        if (socket->readNotifier)
+            socket->readNotifier->setEnabled(false);
     }
 
-    if (what == CURL_POLL_OUT || what == CURL_POLL_INOUT) {
+    if (action == CURL_POLL_OUT || action == CURL_POLL_INOUT) {
         if (!socket->writeNotifier) {
             socket->writeNotifier = new QSocketNotifier(socket->socketDescriptor, QSocketNotifier::Write);
             connect(socket->writeNotifier, &QSocketNotifier::activated, this, &CurlMulti::socketReadyWrite);
         }
         socket->writeNotifier->setEnabled(true);
-    }
-
-    switch (what) {
-    case CURL_POLL_IN:
-        if (socket->writeNotifier) socket->writeNotifier->setEnabled(false);
-        break;
-    case CURL_POLL_OUT:
-        if (socket->readNotifier) socket->writeNotifier->setEnabled(false);
-        break;
+    } else {
+        if (socket->writeNotifier)
+            socket->writeNotifier->setEnabled(false);
     }
 
     return 0;
