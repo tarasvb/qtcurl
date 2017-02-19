@@ -15,45 +15,50 @@ Be strong and do it yourself. There should be plenty of docs for this.
 include (qtcurl/qtcurl.pri)
 ```
 ###3. Write your code
-Include header, please:
+Include the header, please:
 ```c++
 #include "CurlEasy.h"
 ```
 
-Create the transfer object and set it up:
+Create a **CurlEasy** object and set it up:
 ```c++
-	CurlEasy *curl = new CurlEasy;
-	curl->set(CURLOPT_URL, "https://www.google.com");
-	curl->set(CURLOPT_FOLLOWLOCATION, long(1)); // Tells libcurl to follow HTTP 3xx redirects
+CurlEasy *curl = new CurlEasy;
+curl->set(CURLOPT_URL, "https://www.google.com");
+curl->set(CURLOPT_FOLLOWLOCATION, long(1)); // Tells libcurl to follow HTTP 3xx redirects
 ```
 
 You also may want to override some curl callbacks:
 ```c++
-  curl->setWriteFunction([](char *data, size_t size)->size_t {
-		qDebug() << "Data from google.com: " << QByteArray(data, static_cast<int>(size));
-		return size;
-	});
+curl->setWriteFunction([](char *data, size_t size)->size_t {
+    qDebug() << "Data from google.com: " << QByteArray(data, static_cast<int>(size));
+    return size;
+});
  ```
 
 And set some HTTP headers:
 ```c++
-  curl->setHttpHeader("User-Agent", "My poor little application");
+curl->setHttpHeader("User-Agent", "My poor little application");
 ```
 
 Oh, the signals are there, of course!
 ```
-	QObject::connect(curl, &CurlEasy::done, [&application](CURLcode result) {
-		qDebug() << "Transfer for google.com is done with CURL code: " << result;
-	});
-  
-	QObject::connect(curl, &CurlEasy::done, transfer, &CurlEasy::deleteLater);
+QObject::connect(curl, &CurlEasy::done, [&application](CURLcode result) {
+    qDebug() << "Transfer for google.com is done with CURL code: " << result;
+});
+ 
+QObject::connect(curl, &CurlEasy::done, transfer, &CurlEasy::deleteLater);
 ```
 
 Now it's time to activate the transfer and pass it to all those event-looping things:
 ```
-	curl->perform();
+curl->perform();
   
-  // Do your stuff while the request is processing.
+// Do your Qt stuff while the request is processing.
 ```
 
-That's it. You may look into the sources for more details =)
+Take these notes into account:
+- All *curl_multi*-related stuff will be created and set up on the first *CurlEasy::perform()* call in the current thread.
+- All *curl_multi*-related stuff will be destroyed on thread exit (or *QApplication* exit, see Qt manual for *QThreadStorage*).
+- (Some further notes here)
+
+That's it. Dig into the sources for details =)
