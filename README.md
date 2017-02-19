@@ -1,5 +1,5 @@
 # qtcurl
-Run `curl_easy_*` transfers asynchronously just inside your **Qt** main thread in the right way.
+Run `curl_easy_*` transfers asynchronously just inside your **Qt** main thread.
 
 Not very much of code needed for that actually. But if you too lazy to learn how to deal with *curl_multi* in event-based systems, you'll probably be happy with these sources. 
 
@@ -41,7 +41,7 @@ curl->setHttpHeader("User-Agent", "My poor little application");
 ```
 
 Oh, the signals are there, of course!
-```
+```c++
 QObject::connect(curl, &CurlEasy::done, [&application](CURLcode result) {
     qDebug() << "Transfer for google.com is done with CURL code: " << result;
 });
@@ -50,7 +50,7 @@ QObject::connect(curl, &CurlEasy::done, transfer, &CurlEasy::deleteLater);
 ```
 
 Now it's time to activate the transfer and pass it to all those event-looping things:
-```
+```c++
 curl->perform();
   
 // Do your Qt stuff while the request is processing.
