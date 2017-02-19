@@ -23,13 +23,19 @@ public:
     void abort();
     bool isRunning() { return isRunning_; }
 
+    // For list of available set options and valid parameter types consult curl_easy_setinfo manual
     template<typename T> bool set(CURLoption option, T parameter) { return curl_easy_setopt(handle_, option, parameter) == CURLE_OK; }
-    bool set(CURLoption option, const QString &parameter);
-    bool set(CURLoption option, const QUrl &parameter);
+    bool set(CURLoption option, const QString &parameter); // Convenience override for const char* parameters
+    bool set(CURLoption option, const QUrl &parameter); // Convenience override for const char* parameters
     void setReadFunction(const DataFunction &function);
     void setWriteFunction(const DataFunction &function);
     void setHeaderFunction(const DataFunction &function);
     void setSeekFunction(const SeekFunction &function);
+
+    // For list of available get options and valid parameter types consult curl_easy_getinfo manual
+    template<typename T> bool get(CURLINFO info, T *pointer) { return curl_easy_getinfo(handle_, info, pointer) == CURLE_OK; }
+    template<typename T> T get(CURLINFO info);
+
 
     QString httpHeader(const QString &header) const;
     void setHttpHeader(const QString &header, const QString &value);
@@ -72,5 +78,12 @@ protected:
 
     friend class CurlMulti;
 };
+
+template<typename T> T CurlEasy::get(CURLINFO info)
+{
+    T parameter;
+    get(info, &parameter);
+    return parameter;
+}
 
 #endif // CURLTRANSFER_H

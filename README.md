@@ -42,11 +42,18 @@ curl->setHttpHeader("User-Agent", "My poor little application");
 
 Oh, the signals are there, of course!
 ```c++
-QObject::connect(curl, &CurlEasy::done, [](CURLcode result) {
-    qDebug() << "Transfer for google.com is done with CURL code: " << result;
+QObject::connect(curl, &CurlEasy::done, [curl](CURLcode result) {
+    long httpResponseCode = curl->get<long>(CURLINFO_RESPONSE_CODE);
+    QString effectiveUrl = curl->get<const char*>(CURLINFO_EFFECTIVE_URL);
+
+    qDebug() << "Transfer for" << effectiveUrl << "is done with"
+             << "HTTP" << httpResponseCode
+             << "and CURL code" << result;
 });
- 
-QObject::connect(curl, &CurlEasy::done, curl, &CurlEasy::deleteLater);
+```
+```c++
+QObject::connect(curl, SIGNAL(done(CURLcode)),
+                 curl, SLOT(deleteLater()));
 ```
 
 Now it's time to activate the transfer and pass it to all those event-looping things:
