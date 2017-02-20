@@ -10,15 +10,12 @@ CurlEasy::CurlEasy(QObject *parent)
     set(CURLOPT_PRIVATE, this);
     set(CURLOPT_XFERINFOFUNCTION, staticCurlXferInfoFunction);
     set(CURLOPT_XFERINFODATA, this);
+    set(CURLOPT_NOPROGRESS, long(0));
 }
 
 CurlEasy::~CurlEasy()
 {
-    if (runningOnMulti_) {
-        runningOnMulti_->removeTransfer(this);
-        runningOnMulti_ = nullptr;
-        isRunning_ = false;
-    }
+    removeFromMulti();
 
     if (handle_) {
         curl_easy_cleanup(handle_);
@@ -30,12 +27,16 @@ CurlEasy::~CurlEasy()
     }
 }
 
+void CurlEasy::deleteLater()
+{
+    removeFromMulti();
+    QObject::deleteLater();
+}
+
 void CurlEasy::perform()
 {
-    if (isRunning_)
+    if (isRunning())
         return;
-
-    isRunning_ = true;
 
     rebuildCurlHttpHeaders();
 
@@ -49,24 +50,28 @@ void CurlEasy::perform()
 
 void CurlEasy::abort()
 {
-    if (!isRunning_)
+    if (!isRunning())
         return;
 
-    runningOnMulti_->removeTransfer(this);
-    runningOnMulti_ = nullptr;
-    isRunning_ = false;
+    removeFromMulti();
 
     emit aborted();
+}
+
+void CurlEasy::removeFromMulti()
+{
+    if (runningOnMulti_ != nullptr) {
+        runningOnMulti_->removeTransfer(this);
+        runningOnMulti_ = nullptr;
+    }
 }
 
 void CurlEasy::onCurlMessage(CURLMsg *message)
 {
     if (message->msg == CURLMSG_DONE) {
-        runningOnMulti_->removeTransfer(this);
-        runningOnMulti_ = nullptr;
-        isRunning_ = false;
-
-        emit done(message->data.result);
+        removeFromMulti();
+        lastResult_ = message->data.result;
+        emit done(lastResult_);
     }
 }
 

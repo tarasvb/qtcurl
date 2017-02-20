@@ -21,9 +21,10 @@ public:
 
     void perform();
     void abort();
-    bool isRunning() { return isRunning_; }
+    bool isRunning() { return runningOnMulti_ != nullptr; }
+    CURLcode result() { return lastResult_; }
 
-    // For list of available set options and valid parameter types consult curl_easy_setopt manual
+    // For the list of available set options and valid parameter types consult curl_easy_setopt manual
     template<typename T> bool set(CURLoption option, T parameter) { return curl_easy_setopt(handle_, option, parameter) == CURLE_OK; }
     bool set(CURLoption option, const QString &parameter); // Convenience override for const char* parameters
     bool set(CURLoption option, const QUrl &parameter); // Convenience override for const char* parameters
@@ -32,7 +33,7 @@ public:
     void setHeaderFunction(const DataFunction &function);
     void setSeekFunction(const SeekFunction &function);
 
-    // For list of available get options and valid parameter types consult curl_easy_getinfo manual
+    // For the list of available get options and valid parameter types consult curl_easy_getinfo manual
     template<typename T> bool get(CURLINFO info, T *pointer) { return curl_easy_getinfo(handle_, info, pointer) == CURLE_OK; }
     template<typename T> T get(CURLINFO info);
 
@@ -48,12 +49,17 @@ public:
     CURL* handle() { return handle_; }
     void setPreferredMulti(CurlMulti *multi) { preferredMulti_ = multi; }
 
+    // Safety hack: substitue QObject's deleteLater whenever possible to make sure
+    // that no callbacks will be called between deleteLater and curl handle removal.
+    Q_SLOT void deleteLater();
+
 signals:
     void aborted();
     void progress(qint64 downloadTotal, qint64 downloadNow, qint64 uploadTotal, qint64 uploadNow);
     void done(CURLcode result);
 
 protected:
+    void removeFromMulti();
     void onCurlMessage(CURLMsg *message);
     void rebuildCurlHttpHeaders();
 
@@ -67,7 +73,7 @@ protected:
     CURL            *handle_ = nullptr;
     CurlMulti       *preferredMulti_ = nullptr;
     CurlMulti       *runningOnMulti_ = nullptr;
-    bool            isRunning_ = false;
+    CURLcode        lastResult_ = CURLE_OK;
     DataFunction    readFunction_;
     DataFunction    writeFunction_;
     DataFunction    headerFunction_;
