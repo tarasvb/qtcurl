@@ -9,9 +9,9 @@ Except the **curl_multi** thing now there's just only straightforward wraparound
 ##Usage:
 ###1. Set up linking and includes for *libcurl*
 Be strong and do it yourself. There should be plenty of docs for this.
-###2. Include qtcurl.pri into your *.pro*
+###2. Include *qtcurl.pri* into your *.pro*
 ```qmake
-include (qtcurl/qtcurl.pri)
+include (qtcurl/src/qtcurl.pri)
 ```
 ###3. Write your code
 Get started with including the header:
