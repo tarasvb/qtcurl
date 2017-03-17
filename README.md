@@ -6,14 +6,14 @@ Behind the scenes there is **curl_multi** legally hooked on Qt socket & timer ev
 Except the **curl_multi** thing now there's just only straightforward wraparound for **curl_easy** functions with a tiny bit of C++/Qt sugar. More things may be added later.
 
 
-##Usage:
-###1. Set up linking and includes for *libcurl*
+## Usage:
+### 1. Set up linking and includes for *libcurl*
 Be strong and do it yourself. There should be plenty of docs for this.
-###2. Include *qtcurl.pri* into your *.pro*
+### 2. Include *qtcurl.pri* into your *.pro*
 ```qmake
 include (qtcurl/src/qtcurl.pri)
 ```
-###3. Write your code
+### 3. Write your code
 Get started with including the header:
 ```c++
 #include "CurlEasy.h"
